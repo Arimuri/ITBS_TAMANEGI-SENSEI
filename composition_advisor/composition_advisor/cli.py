@@ -15,6 +15,9 @@ from .analyze.key_detector import detect_key, parse_key
 from .analyze.voice_extractor import extract_slices
 from .critique.config import load_config
 from .critique.runner import run_all as run_all_rules
+from .fix.applier import apply_fixes_to_midi, write_diff_report
+from .fix.llm import propose as propose_llm_fixes
+from .fix.rule_based import propose as propose_rule_fixes
 from .io.midi_loader import load_midi_files
 from .io.normalize import normalize_score
 from .llm.claude_client import DEFAULT_MODEL, critique as llm_critique
@@ -79,6 +82,18 @@ def analyze(
         None, "--bars",
         help="Restrict analysis to a bar range, e.g. '4-8', '4', '4-', '-8'.",
     ),
+    fix: bool = typer.Option(
+        False, "--fix",
+        help="Generate rule-based fix proposals and write fixed MIDI + diff report.",
+    ),
+    fix_llm: bool = typer.Option(
+        False, "--fix-llm",
+        help="Also ask Claude for fixes on issues the rule-based fixer can't handle.",
+    ),
+    fix_dir: Path = typer.Option(
+        Path("fix_output"), "--fix-dir",
+        help="Output directory for fixed MIDI files and diff report.",
+    ),
     verbose: bool = typer.Option(False, "--verbose", "-v"),
 ) -> None:
     """Analyze MIDI files: detect chords/degrees and emit text or JSON."""
@@ -96,8 +111,10 @@ def analyze(
 
     bar_range = _parse_bar_range(bars) if bars else None
 
+    want_fix = fix or fix_llm
+
     # Anything beyond plain text output needs the full pipeline.
-    if output in {"json", "prompt"} or llm:
+    if output in {"json", "prompt"} or llm or want_fix:
         internal = normalize_score(m21_score, key=detected_key)
         slices = extract_slices(internal)
         if bar_range is not None:
@@ -116,6 +133,18 @@ def analyze(
         if llm:
             critique_text = llm_critique(result, model=model)
             typer.echo(critique_text)
+            return
+        if want_fix:
+            fixes = propose_rule_fixes(internal, result)
+            if fix_llm:
+                fixes.extend(propose_llm_fixes(internal, result, model=model))
+            written = apply_fixes_to_midi(m21_score, fixes, fix_dir)
+            report_path = fix_dir / "fixes.txt"
+            write_diff_report(fixes, report_path)
+            typer.echo(f"# Wrote {len(fixes)} fix(es)")
+            for w in written:
+                typer.echo(f"  {w}")
+            typer.echo(f"  {report_path}")
             return
 
     # Default text output: chords/degrees + a one-line summary per issue.

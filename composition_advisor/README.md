@@ -79,6 +79,26 @@ uv run analyze *.mid --key C --bars 4-      # bar 4 以降
 uv run analyze *.mid --key C --bars -8      # 曲頭から bar 8 まで
 ```
 
+### MIDI 修正提案を書き出す
+
+```bash
+# ルールベースの修正だけ(API不要、決定的)
+uv run analyze *.mid --key C --fix --fix-dir fix_output
+
+# LLM (Claude) も併用して semitone_clash / chord_tone_check を修正させる
+uv run analyze *.mid --key C --fix --fix-llm --fix-dir fix_output
+```
+
+`fix_output/` に各パートの `_fixed.mid` と `fixes.txt`(diffレポート)が出力されます。
+
+修正対象:
+- `range_check`(楽器音域逸脱) → ルールベースで自動オクターブ移動
+- `bass_below`(bass より低い音) → ルールベースで上に移動
+- `voice_crossing`(声部交叉) → ルールベースで下声部を1オクターブ下げ
+- `semitone_clash` / `parallel_motion` / `chord_tone_check` → `--fix-llm` 指定時に Claude が判断
+
+LLM フィクサーは Claude にJSON形式で編集を返させて Note にマッピングします(Studio One表記)。
+
 ## 設定ファイル(yaml)
 
 ```yaml
@@ -128,12 +148,13 @@ uv run python tests/fixtures/_make_clash.py      # parallel 5th + clash + crossi
 composition_advisor/
 ├── composition_advisor/
 │   ├── io/         # MIDI 読み込み + 内部モデル正規化
-│   ├── model/      # pydantic モデル(Score / Slice / Issue)
+│   ├── model/      # pydantic モデル(Score / Slice / Issue / Fix)
 │   ├── analyze/    # コード/調/度数/Slice 抽出
 │   ├── critique/   # ルールベースの問題検出 + 設定
 │   │   ├── rules/  # 個別ルール
 │   │   ├── runner.py
 │   │   └── config.py
+│   ├── fix/        # 修正提案(rule_based / llm)+ MIDI applier
 │   ├── llm/        # Claude API 連携
 │   └── cli.py      # typer ベース CLI
 ├── examples/

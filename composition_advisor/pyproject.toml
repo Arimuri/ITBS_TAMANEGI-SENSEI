@@ -5,6 +5,7 @@ description = "MIDI composition critique tool for jazz/fusion/city-pop/gospel wr
 requires-python = ">=3.12"
 dependencies = [
     "anthropic>=0.91.0",
+    "mido>=1.3.3",
     "music21>=9.9.1",
     "pydantic>=2.12.5",
     "pyyaml>=6.0.3",
