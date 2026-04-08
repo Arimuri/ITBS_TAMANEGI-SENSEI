@@ -30,6 +30,7 @@ def check(
 
     issues: list[Issue] = []
     for label, idx in (("opening", 0), ("closing", -1)):
+        label_ja = "開始" if label == "opening" else "終止"
         cf_n, cp_n = pairs[idx]
         interval = harmonic_interval(cf_n, cp_n)
         if not is_perfect(interval):
@@ -40,9 +41,9 @@ def check(
                     severity="warning",
                     rule_id=RULE_ID,
                     description=(
-                        f"{label.capitalize()} interval is {interval} semitones; "
-                        f"counterpoint should open/close on a perfect consonance "
-                        f"(unison, P5, or P8)."
+                        f"{label_ja}の音程が{interval}半音です。"
+                        f"対位法は完全協和音(ユニゾン・完全5度・オクターブ)で"
+                        f"開始/終止するのが原則です。"
                     ),
                     affected_notes=[cf_n, cp_n],
                     affected_parts=[cf.name, cp.name],

@@ -62,10 +62,10 @@ def check(
                             severity="warning",
                             rule_id=DOWNBEAT_RULE_ID,
                             description=(
-                                f"Downbeat dissonance ({interval} semitones) at "
-                                f"bar{cp_note.bar} beat{cp_note.beat_in_bar:.2f}: "
-                                f"{cp.name} {cp_note.pitch_name} vs {cf.name} {cf_note.pitch_name}. "
-                                f"In second species, the downbeat must be consonant."
+                                f"強拍の不協和({interval}半音): "
+                                f"{cp.name} {cp_note.pitch_name} と "
+                                f"{cf.name} {cf_note.pitch_name}。"
+                                f"2種対位法では強拍は協和音である必要があります。"
                             ),
                             affected_notes=[cf_note, cp_note],
                             affected_parts=[cf.name, cp.name],
@@ -94,9 +94,8 @@ def check(
                     severity="warning",
                     rule_id=UPBEAT_RULE_ID,
                     description=(
-                        f"Upbeat dissonance {cp_note.pitch_name} over {cf_note.pitch_name} "
-                        f"is not a valid passing tone (needs stepwise approach and stepwise "
-                        f"continuation in the same direction)."
+                        f"弱拍の不協和: {cp_note.pitch_name} は {cf_note.pitch_name} に対して"
+                        f"正しい経過音ではありません(順次進行で接近して同方向に順次進行で抜ける必要があります)。"
                     ),
                     affected_notes=[cf_note, cp_note],
                     affected_parts=[cf.name, cp.name],

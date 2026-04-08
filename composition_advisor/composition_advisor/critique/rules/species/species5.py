@@ -51,9 +51,8 @@ def check(
                 severity="info",
                 rule_id=RHYTHM_RULE_ID,
                 description=(
-                    f"Four or more notes in a row share the same rhythmic value "
-                    f"({durations[end_idx]:.2f}). Florid counterpoint should mix "
-                    f"durations to keep the line shapely."
+                    f"同じ音価({durations[end_idx]:.2f}拍)が4音以上連続しています。"
+                    f"華麗対位法ではリズムを変化させて旋律を立体的に保つのが基本です。"
                 ),
                 affected_notes=[anchor],
                 affected_parts=[cp.name],
@@ -82,9 +81,8 @@ def check(
                 severity="info",
                 rule_id=NO_LONG_NOTE_RULE_ID,
                 description=(
-                    f"Counterpoint never sustains a note longer than {longest:.2f} beats. "
-                    f"Fifth species typically incorporates at least one held note or "
-                    f"suspension to vary the texture."
+                    f"対旋律で持続音が {longest:.2f} 拍以下しかありません。"
+                    f"5種対位法は通常、少なくとも1つの持続音や掛留を入れて変化を作ります。"
                 ),
                 affected_notes=[anchor],
                 affected_parts=[cp.name],

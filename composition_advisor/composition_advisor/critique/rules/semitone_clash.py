@@ -44,8 +44,8 @@ def check(
             if interval % 12 == 1 or interval % 12 == 11:
                 lo, hi = (a, b) if a.pitch < b.pitch else (b, a)
                 desc = (
-                    f"Semitone clash: {lo.pitch_name} ({lo.part}) vs "
-                    f"{hi.pitch_name} ({hi.part}) — {interval} semitones apart"
+                    f"半音衝突: {lo.pitch_name}({lo.part})と"
+                    f"{hi.pitch_name}({hi.part})が{interval}半音でぶつかっています。"
                 )
                 issues.append(
                     Issue(

@@ -77,9 +77,8 @@ def check(
                     severity="warning",
                     rule_id=PREP_RULE_ID,
                     description=(
-                        f"Suspension at {cp_note.pitch_name} is not properly prepared: "
-                        f"the tie starts on a {prep_interval}-semitone interval, "
-                        f"which is not consonant."
+                        f"掛留 {cp_note.pitch_name} の準備が正しくありません: "
+                        f"タイの始点が {prep_interval} 半音(協和音ではない)です。"
                     ),
                     affected_notes=[cf_before, cp_note],
                     affected_parts=[cf.name, cp.name],
@@ -98,9 +97,9 @@ def check(
                     severity="info",
                     rule_id=NO_DISSONANCE_RULE_ID,
                     description=(
-                        f"Tied note {cp_note.pitch_name} is consonant against the new "
-                        f"cantus note ({cf_after.pitch_name}); fourth species shines on "
-                        f"a properly prepared and resolved dissonant suspension here."
+                        f"タイの音 {cp_note.pitch_name} が新しい cantus 音 "
+                        f"({cf_after.pitch_name}) に対して協和しています。4種対位法は"
+                        f"準備された不協和の掛留と下行解決を聴かせるのが眼目です。"
                     ),
                     affected_notes=[cf_after, cp_note],
                     affected_parts=[cf.name, cp.name],
@@ -119,8 +118,7 @@ def check(
                     severity="warning",
                     rule_id=RESOLVE_RULE_ID,
                     description=(
-                        f"Suspension {cp_note.pitch_name} has no following note "
-                        f"to resolve to."
+                        f"掛留 {cp_note.pitch_name} に解決音がありません。"
                     ),
                     affected_notes=[cf_after, cp_note],
                     affected_parts=[cf.name, cp.name],
@@ -138,8 +136,8 @@ def check(
                     severity="warning",
                     rule_id=RESOLVE_RULE_ID,
                     description=(
-                        f"Suspension {cp_note.pitch_name} should resolve down by step; "
-                        f"got {next_n.pitch_name} (interval {delta:+d} semitones)."
+                        f"掛留 {cp_note.pitch_name} は下行2度で解決すべきですが、"
+                        f"{next_n.pitch_name}({delta:+d}半音)になっています。"
                     ),
                     affected_notes=[cf_after, cp_note, next_n],
                     affected_parts=[cf.name, cp.name],
@@ -159,8 +157,8 @@ def check(
                         severity="warning",
                         rule_id=RESOLVE_RULE_ID,
                         description=(
-                            f"Suspension resolves to {next_n.pitch_name}, but that note "
-                            f"is dissonant ({res_interval} semitones) against the cantus."
+                            f"掛留の解決音 {next_n.pitch_name} が cantus に対して"
+                            f"不協和({res_interval}半音)です。"
                         ),
                         affected_notes=[cf_at_next, next_n],
                         affected_parts=[cf.name, cp.name],

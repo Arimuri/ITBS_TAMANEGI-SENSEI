@@ -52,9 +52,11 @@ def check(score: Score, slices: list[Slice]) -> list[Issue]:
                         kind = "octave"
                     if kind is None:
                         continue
+                    kind_ja = "5度" if kind == "fifth" else "8度"
                     desc = (
-                        f"Parallel {kind}: {p1} {n1a.pitch_name}->{n2a.pitch_name} "
-                        f"vs {p2} {n1b.pitch_name}->{n2b.pitch_name}"
+                        f"平行{kind_ja}: {p1}({n1a.pitch_name}→{n2a.pitch_name})と"
+                        f"{p2}({n1b.pitch_name}→{n2b.pitch_name})が同方向に動いて"
+                        f"連続して完全{kind_ja}を作っています。"
                     )
                     issues.append(
                         Issue(

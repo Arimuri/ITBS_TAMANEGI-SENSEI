@@ -59,8 +59,8 @@ def check(score: Score, slices: list[Slice]) -> list[Issue]:
             if key in seen:
                 continue
             seen.add(key)
-            direction = "below" if note.pitch < low else "above"
-            limit = midi_to_studio_one(low if direction == "below" else high)
+            direction_ja = "下回って" if note.pitch < low else "上回って"
+            limit = midi_to_studio_one(low if note.pitch < low else high)
             issues.append(
                 Issue(
                     bar=note.bar,
@@ -68,8 +68,8 @@ def check(score: Score, slices: list[Slice]) -> list[Issue]:
                     severity="warning",
                     rule_id=RULE_ID,
                     description=(
-                        f"{note.part} {note.pitch_name} is {direction} the practical "
-                        f"range (limit {limit})"
+                        f"{note.part}の{note.pitch_name}が実用音域を{direction_ja}います"
+                        f"(限界{limit})。"
                     ),
                     affected_notes=[note],
                     affected_parts=[note.part],

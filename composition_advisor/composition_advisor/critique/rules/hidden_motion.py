@@ -57,10 +57,11 @@ def check(score: Score, slices: list[Slice]) -> list[Issue]:
                         kind = "octave"
                     if kind is None:
                         continue
+                    kind_ja = "5度" if kind == "fifth" else "8度"
                     desc = (
-                        f"Hidden (direct) {kind}: {p1} {n1a.pitch_name}->{n2a.pitch_name} "
-                        f"vs {p2} {n1b.pitch_name}->{n2b.pitch_name} "
-                        f"(both voices move in the same direction into a perfect {kind})"
+                        f"隠伏{kind_ja}(直行進行): {p1}({n1a.pitch_name}→{n2a.pitch_name})と"
+                        f"{p2}({n1b.pitch_name}→{n2b.pitch_name})が同方向に動いて"
+                        f"完全{kind_ja}に到達しています。"
                     )
                     issues.append(
                         Issue(

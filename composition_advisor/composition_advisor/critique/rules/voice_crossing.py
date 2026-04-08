@@ -46,8 +46,8 @@ def check(score: Score, slices: list[Slice]) -> list[Issue]:
                 )
                 if vlq.voiceCrossing():
                     desc = (
-                        f"Voice crossing: {p_upper} {n1u.pitch_name}->{n2u.pitch_name} "
-                        f"crosses {p_lower} {n1l.pitch_name}->{n2l.pitch_name}"
+                        f"声部交叉: {p_upper}({n1u.pitch_name}→{n2u.pitch_name})が"
+                        f"{p_lower}({n1l.pitch_name}→{n2l.pitch_name})と交差しています。"
                     )
                     issues.append(
                         Issue(

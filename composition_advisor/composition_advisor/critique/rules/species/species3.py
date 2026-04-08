@@ -75,13 +75,13 @@ def check(
             position = idx  # 0..3 within the cf bar
             if position == 0:
                 rule_id = DOWNBEAT_RULE_ID
-                desc_pre = "Downbeat (beat 1) dissonance"
+                desc_pre = "強拍(1拍目)の不協和"
             elif position == 2:
                 rule_id = SECOND_STRONG_RULE_ID
-                desc_pre = "Secondary strong (beat 3) dissonance"
+                desc_pre = "準強拍(3拍目)の不協和"
             else:
                 rule_id = WEAK_BEAT_RULE_ID
-                desc_pre = f"Weak beat (beat {position + 1}) dissonance"
+                desc_pre = f"弱拍({position + 1}拍目)の不協和"
 
             # Always allow well-formed passing or neighbor.
             if _is_passing(prev_n, cp_note, next_n) or _is_neighbor(prev_n, cp_note, next_n):
@@ -96,10 +96,9 @@ def check(
                     severity="warning" if position in (0,) else "info",
                     rule_id=rule_id,
                     description=(
-                        f"{desc_pre}: {cp.name} {cp_note.pitch_name} vs "
-                        f"{cf.name} {cf_note.pitch_name} ({interval} semitones). "
-                        f"Third species permits dissonance only as a stepwise "
-                        f"passing or neighbor figure on weak beats."
+                        f"{desc_pre}: {cp.name} {cp_note.pitch_name} と "
+                        f"{cf.name} {cf_note.pitch_name}({interval}半音)。"
+                        f"3種対位法では弱拍の経過音または刺繍音としてのみ不協和が許容されます。"
                     ),
                     affected_notes=[cf_note, cp_note],
                     affected_parts=[cf.name, cp.name],

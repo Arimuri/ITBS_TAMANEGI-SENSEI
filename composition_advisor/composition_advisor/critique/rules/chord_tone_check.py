@@ -113,15 +113,15 @@ def check(
                 kind = "diatonic_tension"
                 severity = "info"
                 desc = (
-                    f"{note.part} {note.pitch_name} ({pc_name}) is a diatonic "
-                    f"tension over {chord_label}"
+                    f"{note.part}の{note.pitch_name}({pc_name})は{chord_label}に対して"
+                    f"ダイアトニックなテンションです。"
                 )
             else:
                 kind = "chromatic"
                 severity = "warning"
                 desc = (
-                    f"{note.part} {note.pitch_name} ({pc_name}) is chromatic "
-                    f"(outside the key) over {chord_label}"
+                    f"{note.part}の{note.pitch_name}({pc_name})は{chord_label}に対して"
+                    f"スケール外のクロマティック音です。"
                 )
 
             issues.append(

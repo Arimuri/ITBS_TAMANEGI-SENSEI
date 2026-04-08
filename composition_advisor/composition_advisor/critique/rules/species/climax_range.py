@@ -46,8 +46,8 @@ def check(
                 severity="info",
                 rule_id=RULE_ID,
                 description=(
-                    f"{cp.name} spans {span} semitones ({lo.pitch_name}..{hi.pitch_name}); "
-                    f"counterpoint usually stays within a tenth (16 semitones)."
+                    f"{cp.name} の音域が {span} 半音 ({lo.pitch_name}..{hi.pitch_name}) "
+                    f"あります。対位法では10度(16半音)以内に収めるのが基本です。"
                 ),
                 affected_notes=[lo, hi],
                 affected_parts=[cp.name],
@@ -66,8 +66,8 @@ def check(
                 severity="info",
                 rule_id=RULE_ID,
                 description=(
-                    f"Climax pitch {instances[0].pitch_name} appears {top_count} times; "
-                    f"a counterpoint line is usually shaped around a single high point."
+                    f"クライマックス音 {instances[0].pitch_name} が {top_count} 回現れています。"
+                    f"対位法の旋律は一度きりの最高音を頂点として形作るのが普通です。"
                 ),
                 affected_notes=instances,
                 affected_parts=[cp.name],
@@ -85,8 +85,8 @@ def check(
                     severity="info",
                     rule_id=RULE_ID,
                     description=(
-                        f"Immediate repeated pitch {a.pitch_name}->{b.pitch_name}; "
-                        f"first species forbids note repetition."
+                        f"同音連打 {a.pitch_name}→{b.pitch_name}: "
+                        f"1種対位法では同音の連続は禁則です。"
                     ),
                     affected_notes=[a, b],
                     affected_parts=[cp.name],

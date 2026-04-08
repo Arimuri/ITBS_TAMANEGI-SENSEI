@@ -38,8 +38,8 @@ def check(score: Score, slices: list[Slice]) -> list[Issue]:
                     severity="warning",
                     rule_id=RULE_ID,
                     description=(
-                        f"{off.part} note {off.pitch_name} is below the bass "
-                        f"({bass_low.part} {bass_low.pitch_name})"
+                        f"{off.part}の{off.pitch_name}が"
+                        f"ベース({bass_low.part} {bass_low.pitch_name})より低くなっています。"
                     ),
                     affected_notes=[off, bass_low],
                     affected_parts=sorted({off.part, bass_low.part}),

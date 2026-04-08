@@ -41,7 +41,7 @@ def check(
         if not is_dissonant(interval):
             continue
         label = INTERVAL_LABELS.get(interval % 12, f"{interval % 12}st")
-        compound = " (compound)" if interval >= 12 else ""
+        compound = "(複合)" if interval >= 12 else ""
         issues.append(
             Issue(
                 bar=cp_n.bar,
@@ -49,9 +49,9 @@ def check(
                 severity="warning",
                 rule_id=RULE_ID,
                 description=(
-                    f"Dissonant vertical {label}{compound} between "
-                    f"{cp.name} {cp_n.pitch_name} and {cf.name} {cf_n.pitch_name}. "
-                    f"First species requires all intervals to be consonant."
+                    f"不協和音程 {label}{compound}: "
+                    f"{cp.name} {cp_n.pitch_name} と {cf.name} {cf_n.pitch_name}。"
+                    f"1種対位法ではすべての音程が協和音である必要があります。"
                 ),
                 affected_notes=[cf_n, cp_n],
                 affected_parts=[cf.name, cp.name],

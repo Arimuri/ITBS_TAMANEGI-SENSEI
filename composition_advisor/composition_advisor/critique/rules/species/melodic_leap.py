@@ -62,8 +62,8 @@ def check(
                     severity="warning",
                     rule_id=RULE_ID,
                     description=(
-                        f"Melodic leap of {abs(mi)} semitones "
-                        f"({a.pitch_name}->{b.pitch_name}) exceeds an octave."
+                        f"旋律的跳躍 {abs(mi)} 半音 "
+                        f"({a.pitch_name}→{b.pitch_name}) はオクターブを超えています。"
                     ),
                     affected_notes=[a, b],
                     affected_parts=[cp.name],
@@ -78,8 +78,8 @@ def check(
                     severity="warning",
                     rule_id=RULE_ID,
                     description=(
-                        f"Melodic tritone {a.pitch_name}->{b.pitch_name}. "
-                        f"Avoid the augmented 4th / diminished 5th in counterpoint."
+                        f"旋律的三全音 {a.pitch_name}→{b.pitch_name}: "
+                        f"対位法では増4度・減5度の進行は避けます。"
                     ),
                     affected_notes=[a, b],
                     affected_parts=[cp.name],
@@ -100,9 +100,9 @@ def check(
                     severity="info",
                     rule_id=RULE_ID,
                     description=(
-                        f"Two consecutive leaps in the same direction "
-                        f"({a.pitch_name}->{b.pitch_name}->{c.pitch_name}). "
-                        f"Counterpoint usually balances a leap with stepwise motion."
+                        f"同方向への連続跳躍 "
+                        f"({a.pitch_name}→{b.pitch_name}→{c.pitch_name}): "
+                        f"対位法では跳躍の後は順次進行で釣り合いを取るのが基本です。"
                     ),
                     affected_notes=[a, b, c],
                     affected_parts=[cp.name],
@@ -126,8 +126,8 @@ def check(
                         severity="info",
                         rule_id=RULE_ID,
                         description=(
-                            f"Leap {a.pitch_name}->{b.pitch_name} should be followed "
-                            f"by stepwise contrary motion; got {b.pitch_name}->{c.pitch_name}."
+                            f"跳躍 {a.pitch_name}→{b.pitch_name} の後は逆方向の順次進行で"
+                            f"解決すべきですが、{b.pitch_name}→{c.pitch_name} となっています。"
                         ),
                         affected_notes=[a, b, c],
                         affected_parts=[cp.name],
