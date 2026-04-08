@@ -13,6 +13,7 @@ from .config import DEFAULT_CONFIG, CritiqueConfig
 from .rules import (
     bass_below,
     chord_tone_check,
+    hidden_motion,
     parallel_motion,
     range_check,
     semitone_clash,
@@ -30,6 +31,7 @@ ALL_RULES: list[tuple[str, Rule]] = [
     ("voice_crossing", voice_crossing.check),
     ("bass_below", bass_below.check),
     ("parallel_motion", parallel_motion.check),
+    ("hidden_motion", hidden_motion.check),
     ("range_check", range_check.check),
     ("chord_tone_check", chord_tone_check.check),
 ]

@@ -15,6 +15,7 @@ from .analyze.key_detector import detect_key, parse_key
 from .analyze.voice_extractor import extract_slices
 from .critique.config import load_config
 from .critique.runner import run_all as run_all_rules
+from .critique.species_runner import run_species
 from .fix.applier import apply_fixes_to_midi, write_diff_report
 from .fix.llm import propose as propose_llm_fixes
 from .fix.rule_based import propose as propose_rule_fixes
@@ -24,6 +25,8 @@ from .llm.claude_client import DEFAULT_MODEL, critique as llm_critique
 from .llm.prompt_builder import build_user_prompt
 from .model.issue import AnalysisResult
 from .model.slice import Slice
+from .tutor.cantus_firmus import PRESETS as CF_PRESETS, get as get_cantus_firmus
+from .tutor.feedback_prompt import critique_species as tutor_critique
 
 app = typer.Typer(help="Compositional analysis tool for MIDI files.")
 
@@ -172,6 +175,89 @@ def analyze(
                 f"  [{iss.severity}] bar{iss.bar} beat{iss.beat_in_bar:.2f} "
                 f"{iss.rule_id}: {iss.description}"
             )
+
+
+@app.command()
+def species(
+    counterpoint: Path = typer.Argument(..., help="MIDI file containing the counterpoint line."),
+    cantus_firmus: Optional[Path] = typer.Option(
+        None, "--cantus-firmus", "-cf",
+        help="MIDI file with the cantus firmus. Required unless --preset is used.",
+    ),
+    preset: Optional[str] = typer.Option(
+        None, "--preset", "-p",
+        help=f"Use a built-in cantus firmus preset. Available: {', '.join(sorted(CF_PRESETS))}",
+    ),
+    species_num: int = typer.Option(
+        1, "--species", "-s",
+        help="Which Fux species to check (only 1 is fully implemented).",
+    ),
+    key: Optional[str] = typer.Option(None, "--key", "-k"),
+    output: str = typer.Option(
+        "text", "--output", "-o",
+        help="'text' (default), 'json', 'prompt', 'tutor' (LLM teacher feedback).",
+    ),
+    model: str = typer.Option(DEFAULT_MODEL, "--model"),
+    verbose: bool = typer.Option(False, "--verbose", "-v"),
+) -> None:
+    """Run species counterpoint checks on a counterpoint vs cantus firmus pair."""
+    logging.basicConfig(
+        level=logging.INFO if verbose else logging.WARNING,
+        format="%(levelname)s %(name)s: %(message)s",
+    )
+
+    # Build a music21 score from the cf source + the counterpoint MIDI.
+    if cantus_firmus is None and preset is None:
+        raise typer.BadParameter("Either --cantus-firmus or --preset is required")
+    if cantus_firmus is not None and preset is not None:
+        raise typer.BadParameter("--cantus-firmus and --preset are mutually exclusive")
+
+    if preset is not None:
+        cf_part = get_cantus_firmus(preset).to_part(part_name="cantus_firmus")
+        m21_score = m21.stream.Score()
+        m21_score.insert(0, cf_part)
+        cp_score = load_midi_files([str(counterpoint)])
+        for p in cp_score.parts:
+            p.partName = "counterpoint"
+            m21_score.insert(0, p)
+    else:
+        m21_score = load_midi_files([str(cantus_firmus), str(counterpoint)])
+        # Tag part roles by file order: first arg = cantus, second = counterpoint
+        for idx, part in enumerate(m21_score.parts):
+            part.partName = "cantus_firmus" if idx == 0 else "counterpoint"
+
+    detected_key = parse_key(key) if key else detect_key(m21_score)
+    internal = normalize_score(m21_score, key=detected_key)
+    slices = extract_slices(internal)
+    _annotate_slice_degrees(slices, detected_key)
+
+    issues = run_species(
+        internal,
+        slices,
+        species=species_num,
+        params={"cantus_firmus_part": "cantus_firmus", "counterpoint_part": "counterpoint"},
+    )
+    result = AnalysisResult(metadata=internal.metadata, slices=slices, issues=issues)
+
+    if output == "json":
+        typer.echo(result.model_dump_json(indent=2))
+        return
+    if output == "prompt":
+        from .tutor.feedback_prompt import build_tutor_prompt
+        typer.echo(build_tutor_prompt(result, species=species_num))
+        return
+    if output == "tutor":
+        typer.echo(tutor_critique(result, species=species_num, model=model))
+        return
+
+    # Default text mode
+    typer.echo(f"# Species {species_num} check ({len(issues)} issues)")
+    typer.echo(f"# Key: {detected_key}")
+    for iss in issues:
+        typer.echo(
+            f"  [{iss.severity}] bar{iss.bar} beat{iss.beat_in_bar:.2f} "
+            f"{iss.rule_id}: {iss.description}"
+        )
 
 
 def main() -> None:
