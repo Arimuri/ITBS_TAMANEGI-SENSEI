@@ -1,0 +1,19 @@
+genre: jazz
+# key: C    # uncomment to override key without --key
+
+rules:
+  parallel_motion:
+    enabled: false           # parallel 5ths/8ves are common in fusion comping
+  voice_crossing:
+    enabled: true
+    severity: info
+  semitone_clash:
+    enabled: true
+    severity: warning
+  bass_below:
+    enabled: true
+  range_check:
+    enabled: true
+  chord_tone_check:
+    enabled: true
+    severity: info           # surface as hints, not warnings
