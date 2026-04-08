@@ -4,11 +4,18 @@ A "semitone clash" is two simultaneously sounding notes whose pitch difference,
 modulo 12, is exactly 1 semitone (so a minor 2nd, a major 7th, a minor 9th,
 etc. all count). Notes from the same Part are skipped — a single melodic line
 crossing a chromatic neighbor is not a clash.
+
+Params (from RuleConfig.params):
+    ignore_durations_below: float (beats, default 0.0)
+        Skip slices whose overlap window is shorter than this — useful to
+        absorb MIDI quantize jitter where two notes graze each other for a
+        few ticks.
 """
 
 from __future__ import annotations
 
 from itertools import combinations
+from typing import Any
 
 from ...model.issue import Issue
 from ...model.score import Score
@@ -17,10 +24,17 @@ from ...model.slice import Slice
 RULE_ID = "semitone_clash"
 
 
-def check(score: Score, slices: list[Slice]) -> list[Issue]:
+def check(
+    score: Score, slices: list[Slice], params: dict[str, Any] | None = None
+) -> list[Issue]:
     """Return one Issue per detected clashing pair (per slice)."""
+    params = params or {}
+    min_duration = float(params.get("ignore_durations_below", 0.0))
+
     issues: list[Issue] = []
     for sl in slices:
+        if sl.duration < min_duration:
+            continue
         for a, b in combinations(sl.notes, 2):
             if a.part == b.part:
                 continue

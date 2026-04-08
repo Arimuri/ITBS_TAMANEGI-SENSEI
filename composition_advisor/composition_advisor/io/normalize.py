@@ -80,12 +80,22 @@ def normalize_score(m21_score: m21.stream.Score, key: m21.key.Key | None = None)
         notes.sort(key=lambda n: (n.start_beat, n.pitch))
         parts.append(Part(name=part_name, notes=notes))
 
+    # Build bar_starts from any part's measures (they all share the same
+    # measure boundaries in a chordified MIDI input).
+    bar_starts: list[float] = []
+    for m21_part in m21_score.parts:
+        measures = list(m21_part.getElementsByClass(m21.stream.Measure))
+        if measures:
+            bar_starts = [float(m.offset) for m in measures]
+            break
+
     metadata = ScoreMetadata(
         key=str(key) if key else None,
         time_signature=ts.ratioString if ts else None,
         tempo_bpm=float(mm.number) if mm and mm.number else None,
         bar_count=max_bar,
         part_names=part_names,
+        bar_starts=bar_starts,
     )
     logger.info("Normalized score: %d parts, %d bars", len(parts), max_bar)
     return Score(metadata=metadata, parts=parts)

@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+import inspect
 import logging
-from typing import Callable
+from typing import Any, Callable
 
 from ..model.issue import Issue
 from ..model.score import Score
@@ -20,7 +21,9 @@ from .rules import (
 
 logger = logging.getLogger(__name__)
 
-Rule = Callable[[Score, list[Slice]], list[Issue]]
+# Rules may optionally accept a `params` keyword. The runner introspects the
+# signature so existing rules without params still work.
+Rule = Callable[..., list[Issue]]
 
 ALL_RULES: list[tuple[str, Rule]] = [
     ("semitone_clash", semitone_clash.check),
@@ -51,7 +54,7 @@ def run_all(
             logger.info("rule %s -> skipped (disabled by config)", name)
             continue
         try:
-            new_issues = rule(score, slices)
+            new_issues = _call_rule(rule, score, slices, rule_cfg.params)
             if rule_cfg.severity:
                 for iss in new_issues:
                     iss.severity = rule_cfg.severity  # type: ignore[assignment]
@@ -62,3 +65,13 @@ def run_all(
 
     issues.sort(key=lambda i: (i.bar, i.beat_in_bar, i.rule_id))
     return issues
+
+
+def _call_rule(
+    rule: Rule, score: Score, slices: list[Slice], params: dict[str, Any]
+) -> list[Issue]:
+    """Call a rule with `params` if its signature accepts it, else without."""
+    sig = inspect.signature(rule)
+    if "params" in sig.parameters:
+        return rule(score, slices, params=params)
+    return rule(score, slices)

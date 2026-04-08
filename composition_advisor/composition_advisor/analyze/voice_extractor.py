@@ -39,14 +39,30 @@ def _onsets(notes: list[Note]) -> list[float]:
     return sorted(points)
 
 
-def _bar_and_beat(start_beat: float, beats_per_bar: float) -> tuple[int, float]:
+def _bar_and_beat(
+    start_beat: float, bar_starts: list[float], beats_per_bar: float
+) -> tuple[int, float]:
     """Compute (bar, beat_in_bar) from an absolute beat position.
 
-    Assumes a constant time signature across the score (pickup bars and
-    mid-piece meter changes are not handled in Phase 2).
+    Uses the measure-offset table from the score when available, so meter
+    changes mid-piece work correctly. Falls back to a constant time
+    signature if `bar_starts` is empty (legacy / handcrafted Score objects).
     """
-    bar = int(start_beat // beats_per_bar) + 1
-    beat_in_bar = (start_beat % beats_per_bar) + 1.0
+    if not bar_starts:
+        bar = int(start_beat // beats_per_bar) + 1
+        return (bar, (start_beat % beats_per_bar) + 1.0)
+
+    # Find the rightmost bar whose start <= start_beat (binary search).
+    lo, hi = 0, len(bar_starts)
+    while lo < hi:
+        mid = (lo + hi) // 2
+        if bar_starts[mid] <= start_beat + EPS:
+            lo = mid + 1
+        else:
+            hi = mid
+    idx = max(0, lo - 1)
+    bar = idx + 1  # 1-indexed
+    beat_in_bar = start_beat - bar_starts[idx] + 1.0
     return (bar, beat_in_bar)
 
 
@@ -85,6 +101,7 @@ def extract_slices(score: Score) -> list[Slice]:
         return []
 
     beats_per_bar = _beats_per_bar(score)
+    bar_starts = score.metadata.bar_starts
     onsets = _onsets(notes)
     slices: list[Slice] = []
 
@@ -102,7 +119,7 @@ def extract_slices(score: Score) -> list[Slice]:
         if not sounding:
             continue
 
-        bar, beat_in_bar = _bar_and_beat(seg_start, beats_per_bar)
+        bar, beat_in_bar = _bar_and_beat(seg_start, bar_starts, beats_per_bar)
         pitch_classes = sorted({NOTE_NAMES[n.pitch % 12] for n in sounding})
         bass = min(sounding, key=lambda n: n.pitch)
 

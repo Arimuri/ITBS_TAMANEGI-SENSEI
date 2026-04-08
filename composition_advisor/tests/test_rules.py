@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+import pytest
+
+from composition_advisor.cli import _parse_bar_range
 from composition_advisor.critique.config import CritiqueConfig, RuleConfig
 from composition_advisor.critique.rules import (
     bass_below,
+    chord_tone_check,
     parallel_motion,
     range_check,
     semitone_clash,
@@ -137,6 +141,75 @@ def test_runner_respects_disabled_rule(make_note_fn, build_score_fn, slice_fn):
     assert not any(i.rule_id == "parallel_motion" for i in issues)
 
 
+# ----- chord_tone_check ---------------------------------------------------
+
+def test_chord_tone_check_classifies_diatonic_vs_chromatic(make_note_fn, build_score_fn, slice_fn):
+    # Slice plays a C major triad (C/E/G) plus a melody note in the upper part.
+    # We test two melody pitches in two different scores:
+    #   D5 (74) — diatonic in C major, not in C triad → diatonic_tension/info
+    #   Eb5 (75) — chromatic in C major, not in C triad → chromatic/warning
+    diatonic_score = build_score_fn({
+        "chord": [
+            make_note_fn(60, "chord", start=0.0),  # C4
+            make_note_fn(64, "chord", start=0.0),  # E4
+            make_note_fn(67, "chord", start=0.0),  # G4
+        ],
+        "melody": [make_note_fn(74, "melody", start=0.0)],  # D5 (diatonic)
+    })
+    issues = chord_tone_check.check(diatonic_score, slice_fn(diatonic_score))
+    assert len(issues) == 1
+    assert issues[0].context["kind"] == "diatonic_tension"
+    assert issues[0].severity == "info"
+
+    chromatic_score = build_score_fn({
+        "chord": [
+            make_note_fn(60, "chord", start=0.0),
+            make_note_fn(64, "chord", start=0.0),
+            make_note_fn(67, "chord", start=0.0),
+        ],
+        "melody": [make_note_fn(75, "melody", start=0.0)],  # Eb5 (chromatic)
+    })
+    issues = chord_tone_check.check(chromatic_score, slice_fn(chromatic_score))
+    assert len(issues) == 1
+    assert issues[0].context["kind"] == "chromatic"
+    assert issues[0].severity == "warning"
+
+
+def test_chord_tone_check_skips_short_passing_notes(make_note_fn, build_score_fn, slice_fn):
+    # Eighth-note passing tone (0.5 beats) — should be skipped at the
+    # default ignore_durations_below=0.25 threshold? No: 0.5 > 0.25 → flagged.
+    # Sixteenth note (0.125 beats) — should be skipped.
+    score = build_score_fn({
+        "chord": [
+            make_note_fn(60, "chord", start=0.0, dur=4.0),
+            make_note_fn(64, "chord", start=0.0, dur=4.0),
+            make_note_fn(67, "chord", start=0.0, dur=4.0),
+        ],
+        "melody": [make_note_fn(75, "melody", start=0.0, dur=0.125)],  # Eb 16th
+    })
+    issues = chord_tone_check.check(score, slice_fn(score))
+    assert issues == []
+
+
+# ----- semitone_clash duration filter -------------------------------------
+
+def test_semitone_clash_ignores_short_overlap(make_note_fn, build_score_fn, slice_fn):
+    # Two notes only overlap for 0.05 beats (quantize jitter).
+    score = build_score_fn({
+        "treble": [make_note_fn(76, "treble", start=0.0, dur=1.0)],
+        "lower": [make_note_fn(77, "lower", start=0.95, dur=1.0)],
+    })
+    slices = slice_fn(score)
+    # Without filter: should fire on the brief overlap.
+    assert any(
+        i.rule_id == "semitone_clash"
+        for i in semitone_clash.check(score, slices)
+    )
+    # With a 0.1-beat threshold: should be silent.
+    issues = semitone_clash.check(score, slices, params={"ignore_durations_below": 0.1})
+    assert issues == []
+
+
 def test_runner_severity_override(make_note_fn, build_score_fn, slice_fn):
     score = build_score_fn({
         "treble": [make_note_fn(76, "treble", start=0.0)],
@@ -148,3 +221,24 @@ def test_runner_severity_override(make_note_fn, build_score_fn, slice_fn):
     clash_issues = [i for i in issues if i.rule_id == "semitone_clash"]
     assert clash_issues
     assert all(i.severity == "info" for i in clash_issues)
+
+
+# ----- CLI bar range parser -----------------------------------------------
+
+@pytest.mark.parametrize(
+    "spec,expected",
+    [
+        ("4-8", (4, 8)),
+        ("4", (4, 4)),
+        ("4-", (4, 10**9)),
+        ("-8", (1, 8)),
+        ("  3-5 ", (3, 5)),
+    ],
+)
+def test_parse_bar_range(spec, expected):
+    assert _parse_bar_range(spec) == expected
+
+
+def test_parse_bar_range_rejects_inverted():
+    with pytest.raises(ValueError):
+        _parse_bar_range("8-4")

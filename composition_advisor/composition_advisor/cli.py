@@ -38,6 +38,20 @@ def _annotate_slice_degrees(slices: list[Slice], key: m21.key.Key) -> None:
             sl.detected_chord_degree = None
 
 
+def _parse_bar_range(spec: str) -> tuple[int, int]:
+    """Parse "4-8", "4", "4-", "-8" into an inclusive (lo, hi) bar pair."""
+    spec = spec.strip()
+    if "-" not in spec:
+        n = int(spec)
+        return (n, n)
+    lo_s, hi_s = spec.split("-", 1)
+    lo = int(lo_s) if lo_s else 1
+    hi = int(hi_s) if hi_s else 10**9
+    if lo > hi:
+        raise ValueError(f"Invalid bar range '{spec}': lo > hi")
+    return (lo, hi)
+
+
 @app.command()
 def analyze(
     files: list[Path] = typer.Argument(..., help="MIDI files to analyze."),
@@ -61,6 +75,10 @@ def analyze(
         None, "--config", "-c",
         help="Path to a yaml config that enables/disables individual rules.",
     ),
+    bars: Optional[str] = typer.Option(
+        None, "--bars",
+        help="Restrict analysis to a bar range, e.g. '4-8', '4', '4-', '-8'.",
+    ),
     verbose: bool = typer.Option(False, "--verbose", "-v"),
 ) -> None:
     """Analyze MIDI files: detect chords/degrees and emit text or JSON."""
@@ -76,10 +94,15 @@ def analyze(
     else:
         detected_key = parse_key(key) if key else detect_key(m21_score)
 
+    bar_range = _parse_bar_range(bars) if bars else None
+
     # Anything beyond plain text output needs the full pipeline.
     if output in {"json", "prompt"} or llm:
         internal = normalize_score(m21_score, key=detected_key)
         slices = extract_slices(internal)
+        if bar_range is not None:
+            lo, hi = bar_range
+            slices = [s for s in slices if lo <= s.bar <= hi]
         _annotate_slice_degrees(slices, detected_key)
         issues = run_all_rules(internal, slices, config=cfg)
         result = AnalysisResult(metadata=internal.metadata, slices=slices, issues=issues)
@@ -99,12 +122,18 @@ def analyze(
     typer.echo(f"# Key: {detected_key}")
     chords = detect_chords(m21_score)
     chords = assign_degrees(chords, detected_key)
+    if bar_range is not None:
+        lo, hi = bar_range
+        chords = [c for c in chords if lo <= c.bar <= hi]
     for c in chords:
         deg = c.degree or "?"
         typer.echo(f"bar{c.bar} beat{c.beat:.2f}: {c.chord_name} ({deg})")
 
     internal = normalize_score(m21_score, key=detected_key)
     slices = extract_slices(internal)
+    if bar_range is not None:
+        lo, hi = bar_range
+        slices = [s for s in slices if lo <= s.bar <= hi]
     issues = run_all_rules(internal, slices, config=cfg)
     if issues:
         typer.echo("")

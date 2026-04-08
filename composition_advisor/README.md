@@ -70,6 +70,15 @@ uv run analyze *.mid --key C --config examples/jazz.yaml
 
 `examples/jazz.yaml` では `parallel_motion` を無効化し、`voice_crossing` `chord_tone_check` を `info` 重大度に下げています。
 
+### 特定の小節範囲だけ分析
+
+```bash
+uv run analyze *.mid --key C --bars 4-8     # bar 4-8 のみ
+uv run analyze *.mid --key C --bars 4       # bar 4 だけ
+uv run analyze *.mid --key C --bars 4-      # bar 4 以降
+uv run analyze *.mid --key C --bars -8      # 曲頭から bar 8 まで
+```
+
 ## 設定ファイル(yaml)
 
 ```yaml
@@ -90,6 +99,13 @@ rules:
 各ルールキーの下に書ける項目:
 - `enabled` (bool, default true) — false にすればそのルールはスキップ
 - `severity` (str, optional) — そのルールが出す Issue の severity を上書き
+- ルール固有のパラメータ(下記参照)— params dict としてルールに渡される
+
+ルール固有パラメータ:
+- `semitone_clash.ignore_durations_below` (float beats, default 0.0) — この秒数より短い重なりは無視(MIDIクオンタイズ揺れ対策)
+- `chord_tone_check.ignore_durations_below` (float beats, default 0.25) — この秒数より短い音は通過音として無視
+- `chord_tone_check.harmony_keywords` (list[str]) — ハーモニー側パートとみなすキーワード(default: chord/comp/piano/synth/pad/keys/bass…)
+- `chord_tone_check.target_parts` (list[str]) — チェック対象パート名を明示指定(default: harmony 以外を自動検出)
 
 ## 開発
 
@@ -133,4 +149,4 @@ composition_advisor/
 - **MIDI 入力ではエンハーモニック情報が失われる**(F♯ と G♭ を区別できない)。MusicXML 対応は将来課題。
 - **chordify() は遅い**。大規模スコアでは数秒〜数十秒かかることがあります。
 - 表示は **Studio One 表記(中央 C = C3)** に統一しています。music21 内部の C4 とは1オクターブずれます。
-- 拍子は曲頭の 1 つしか参照しません。曲中の拍子変化は未対応(Phase 2 制約)。
+- 曲中の拍子変化は music21 の measure offset を直接見るので追従します(同じ曲内で 4/4 → 3/4 などしてもbar/beatは正しく出ます)。

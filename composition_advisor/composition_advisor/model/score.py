@@ -53,6 +53,10 @@ class ScoreMetadata(BaseModel):
     tempo_bpm: float | None = None
     bar_count: int = 0
     part_names: list[str] = Field(default_factory=list)
+    # Sorted absolute beat positions where each bar begins. Index 0 is bar 1.
+    # Built from music21 measure offsets so it remains correct even when the
+    # time signature changes mid-piece.
+    bar_starts: list[float] = Field(default_factory=list)
 
 
 class Score(BaseModel):
