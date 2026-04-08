@@ -15,25 +15,24 @@ from ..model.issue import AnalysisResult, Issue
 from ..model.slice import Slice
 
 SYSTEM_PROMPT = """\
-You are a composition coach specialising in jazz, fusion, city pop and gospel.
-You are reviewing a piece for the composer. They care about:
-- Identifying *unintentional* harmonic problems (semitone clashes, voice
-  crossings that obscure the line, parallel motion that flattens the texture).
-- Distinguishing genuine mistakes from idiomatic jazz/fusion choices that
-  *look* like classical violations but are intentional (parallel fifths in
-  a fusion comp, chromatic tension in a bebop line, voicings that briefly
-  cross to set up a melodic hand-off).
-- Concrete fixes expressed in note names, not abstract theory rules.
+あなたはジャズ、フュージョン、シティポップ、ゴスペルを専門とする
+作曲コーチです。作曲家の楽曲をレビューしています。彼らが気にしているのは:
+- 意図しない和声上の問題(半音衝突、旋律線を濁す声部交叉、テクスチャを
+  平板にする平行進行など)を見つけること。
+- 本物のミスと、ジャズ/フュージョン文脈で意図的に使われるイディオム
+  (フュージョンのコンピングでの平行5度、ビバップラインのクロマティック
+  テンション、メロディの受け渡しのために一瞬だけ交叉するボイシング等)を
+  きちんと区別すること。
+- 抽象的な理論用語ではなく、音名レベルでの具体的な修正案を出すこと。
 
-When you respond:
-1. For each issue, decide whether it is likely intentional or worth fixing,
-   and *say so explicitly*.
-2. If you suggest a fix, give it in pitch names (e.g. "change F#2 in Epiano
-   to F2 on beat 3.5").
-3. Describe how the fix would sound in one short sentence.
-4. Use Studio One pitch names (middle C = C3) since that's how the composer
-   labels their work.
-5. Be specific. Avoid generic harmony advice.
+返答するときは:
+1. 各問題について「意図的に見える / 直したほうが良い / 軽微」を *明示的に* 述べる。
+2. 修正案は音名で書く(例: 「Epiano の F#2 を beat 3.5 で F2 に変える」)。
+3. その修正でどう響きが変わるかを1文で添える。
+4. 音名は Studio One 表記(中央 C = C3)を使う。
+5. 具体的に。一般論の和声アドバイスは避ける。
+
+**必ず日本語で返答してください。**
 """
 
 
@@ -66,44 +65,46 @@ def build_user_prompt(result: AnalysisResult) -> str:
     """Render an AnalysisResult into a single user-prompt string."""
     md = result.metadata
     lines: list[str] = []
-    lines.append("# Score metadata")
-    lines.append(f"- key: {md.key}")
-    lines.append(f"- time signature: {md.time_signature}")
-    lines.append(f"- tempo: {md.tempo_bpm} bpm")
-    lines.append(f"- bars: {md.bar_count}")
-    lines.append(f"- parts: {', '.join(md.part_names)}")
+    lines.append("# 楽曲メタデータ")
+    lines.append(f"- キー: {md.key}")
+    lines.append(f"- 拍子: {md.time_signature}")
+    lines.append(f"- テンポ: {md.tempo_bpm} bpm")
+    lines.append(f"- 小節数: {md.bar_count}")
+    lines.append(f"- パート: {', '.join(md.part_names)}")
     lines.append("")
 
     if not result.issues:
-        lines.append("No rule-based issues were detected. ")
-        lines.append("Please give a brief overall harmonic impression of the piece below.")
+        lines.append("ルールベースでは問題が検出されませんでした。")
+        lines.append("以下のスライス情報を見て、曲全体の和声的な印象を簡潔に書いてください。")
         lines.append("")
-        lines.append("# Slices (full)")
+        lines.append("# Slices(全件)")
         for sl in result.slices:
             lines.append(_format_slice(sl))
         return "\n".join(lines)
 
-    lines.append(f"# Detected issues ({len(result.issues)})")
+    lines.append(f"# 検出された問題 ({len(result.issues)} 件)")
     for idx, iss in enumerate(result.issues, 1):
         lines.append("")
-        lines.append(f"## Issue {idx}: {iss.rule_id} [{iss.severity}]")
-        lines.append(f"- bar{iss.bar} beat{iss.beat_in_bar:.2f}")
-        lines.append(f"- description: {iss.description}")
+        lines.append(f"## 問題 {idx}: {iss.rule_id} [{iss.severity}]")
+        lines.append(f"- 位置: bar{iss.bar} beat{iss.beat_in_bar:.2f}")
+        lines.append(f"- 説明: {iss.description}")
         if iss.affected_parts:
-            lines.append(f"- affected parts: {', '.join(iss.affected_parts)}")
+            lines.append(f"- 関係するパート: {', '.join(iss.affected_parts)}")
         if iss.context:
-            lines.append(f"- context: {iss.context}")
+            lines.append(f"- 補足情報: {iss.context}")
         nearby = _slices_near(result.slices, iss)
         if nearby:
-            lines.append("- nearby slices:")
+            lines.append("- 周辺の slices:")
             for sl in nearby:
                 lines.append(_format_slice(sl))
 
     lines.append("")
-    lines.append("# Output format")
-    lines.append("For each issue above, write a numbered section with:")
-    lines.append("1. Verdict: intentional / fix recommended / minor")
-    lines.append("2. Why it sounds that way")
-    lines.append("3. Concrete fix in pitch names (if recommended)")
-    lines.append("4. How the fix would sound")
+    lines.append("# 出力フォーマット")
+    lines.append("上記の各問題について、次の構成で番号付きセクションを書いてください:")
+    lines.append("1. 判定: 意図的 / 修正推奨 / 軽微")
+    lines.append("2. なぜそう響くかの説明")
+    lines.append("3. 具体的な修正案(音名で)")
+    lines.append("4. 修正後にどう響くか")
+    lines.append("")
+    lines.append("**必ず日本語で書いてください。**")
     return "\n".join(lines)
