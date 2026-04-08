@@ -89,3 +89,41 @@ def pair_notes_by_position(cf: Part, cp: Part) -> list[tuple[Note, Note]]:
         if cp_note is not None:
             pairs.append((cf_note, cp_note))
     return pairs
+
+
+def cf_active_at(cf: Part, beat: float) -> Note | None:
+    """Return the cantus firmus note that is sounding at the given absolute beat."""
+    EPS = 1e-3
+    for n in cf.notes:
+        if n.start_beat - EPS <= beat < n.start_beat + n.duration - EPS:
+            return n
+    return None
+
+
+def group_cp_under_cf(cf: Part, cp: Part) -> list[tuple[Note, list[Note]]]:
+    """Group counterpoint notes by which cantus firmus note they sound under.
+
+    Returns a list of (cf_note, [cp_notes]) where cp_notes are the counterpoint
+    notes whose start_beat falls inside the cf_note's duration. Used by
+    Species 2-5 where multiple cp notes share one cf note.
+    """
+    EPS = 1e-3
+    out: list[tuple[Note, list[Note]]] = []
+    for cf_n in cf.notes:
+        cp_in = [
+            n for n in cp.notes
+            if cf_n.start_beat - EPS <= n.start_beat < cf_n.start_beat + cf_n.duration - EPS
+        ]
+        cp_in.sort(key=lambda x: x.start_beat)
+        out.append((cf_n, cp_in))
+    return out
+
+
+def is_step(a: Note, b: Note) -> bool:
+    """True iff two consecutive counterpoint notes move by a 2nd (1 or 2 semitones)."""
+    return abs(a.pitch - b.pitch) in (1, 2)
+
+
+def is_neighbor(a: Note, b: Note, c: Note) -> bool:
+    """True iff a-b-c forms a neighbor figure: step away then step back to the same pitch."""
+    return a.pitch == c.pitch and is_step(a, b) and is_step(b, c)

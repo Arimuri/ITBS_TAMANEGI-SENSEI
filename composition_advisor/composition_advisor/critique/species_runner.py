@@ -14,7 +14,16 @@ from ..model.issue import Issue
 from ..model.score import Score
 from ..model.slice import Slice
 from .rules import hidden_motion, parallel_motion, voice_crossing
-from .rules.species import climax_range, dissonance, melodic_leap, start_end
+from .rules.species import (
+    climax_range,
+    dissonance,
+    melodic_leap,
+    species2,
+    species3,
+    species4,
+    species5,
+    start_end,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +36,44 @@ SPECIES_RULES: dict[int, list[tuple[str, Callable]]] = {
     1: [
         ("species_start_end_perfect", start_end.check),
         ("species_dissonance", dissonance.check),
+        ("species_melodic_leap", melodic_leap.check),
+        ("species_climax_range", climax_range.check),
+        ("parallel_motion", parallel_motion.check),
+        ("hidden_motion", hidden_motion.check),
+        ("voice_crossing", voice_crossing.check),
+    ],
+    2: [
+        ("species_start_end_perfect", start_end.check),
+        ("species2_dissonance", species2.check),
+        ("species_melodic_leap", melodic_leap.check),
+        ("species_climax_range", climax_range.check),
+        ("parallel_motion", parallel_motion.check),
+        ("hidden_motion", hidden_motion.check),
+        ("voice_crossing", voice_crossing.check),
+    ],
+    3: [
+        ("species_start_end_perfect", start_end.check),
+        ("species3_dissonance", species3.check),
+        ("species_melodic_leap", melodic_leap.check),
+        ("species_climax_range", climax_range.check),
+        ("parallel_motion", parallel_motion.check),
+        ("hidden_motion", hidden_motion.check),
+        ("voice_crossing", voice_crossing.check),
+    ],
+    4: [
+        ("species_start_end_perfect", start_end.check),
+        ("species4_suspension", species4.check),
+        ("species_melodic_leap", melodic_leap.check),
+        ("species_climax_range", climax_range.check),
+        ("parallel_motion", parallel_motion.check),
+        ("hidden_motion", hidden_motion.check),
+        ("voice_crossing", voice_crossing.check),
+    ],
+    5: [
+        ("species_start_end_perfect", start_end.check),
+        ("species5_florid", species5.check),
+        ("species4_suspension", species4.check),
+        ("species3_dissonance", species3.check),
         ("species_melodic_leap", melodic_leap.check),
         ("species_climax_range", climax_range.check),
         ("parallel_motion", parallel_motion.check),
