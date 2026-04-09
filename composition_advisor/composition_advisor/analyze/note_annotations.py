@@ -80,6 +80,7 @@ class NoteAnnotation(BaseModel):
     bar: int
     beat_in_bar: float
     start_beat: float
+    duration: float = 4.0
     scale_degree: str | None
     scale_degree_int: int | None
     melodic_interval_prev: int | None
@@ -128,6 +129,7 @@ def annotate_score(score: Score, key: m21.key.Key | None = None) -> list[NoteAnn
                     bar=n.bar,
                     beat_in_bar=n.beat_in_bar,
                     start_beat=n.start_beat,
+                    duration=n.duration,
                     scale_degree=degree_label,
                     scale_degree_int=degree_int,
                     melodic_interval_prev=mi,
