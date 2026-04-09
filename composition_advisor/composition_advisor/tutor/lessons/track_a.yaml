@@ -1,0 +1,337 @@
+id: track_a
+title: "古典対位法 (Fux → Bach → Mozart)"
+summary: |
+  Fux の Species Counterpoint から Bach の2声/3声インベンション、Mozart 様式のコラール和声まで、
+  古典対位法を段階的に学ぶトラック。各レッスンは前のレッスンで学んだルールを引き継ぎながら、
+  新しい技術や緩和を加えていく。
+
+lessons:
+  # ─────────────────────────────────────────────────────────
+  - id: a1_species1
+    title: "A1: Fux Species 1 (1:1)"
+    summary: "定旋律1音に対して対旋律も1音。すべて協和音、不協和音は禁止。"
+    intent: "対位法の最も厳格な姿で、縦のインターバル意識と声部進行の基礎を身につける。"
+    species_compat: 1
+    rules:
+      - species_start_end_perfect
+      - species_dissonance
+      - species_melodic_leap
+      - species_climax_range
+      - parallel_motion
+      - hidden_motion
+      - voice_crossing
+    expected_parts: ["cantus_firmus", "counterpoint"]
+    cantus_firmus_presets:
+      - c_major_short
+      - fux_d_dorian
+      - fux_a_aeolian
+    teacher_persona: |
+      あなたは Fux/Jeppesen 流の古典対位法を教える厳しくも親切な個人教師です。
+      Species 1 では「すべての音が協和音」「縦のインターバルが1度・3度・5度・6度・8度のいずれか」
+      という大原則を優先的に評価してください。
+    output_instructions: |
+      - 各問題を「禁則 / スタイル上の好ましさ / 軽微」で分類
+      - 修正案は Studio One 表記の音名で2案
+      - 最後に「良かった点」と「次の練習目標」を1つずつ
+    rule_card:
+      - heading: "開始と終止"
+        items:
+          - "最初の音と最後の音は完全協和音(P1 / P5 / P8)"
+          - "終止は順次進行で目的音に向かう"
+      - heading: "縦の音程"
+        items:
+          - "すべての縦音程は協和音(P1, m3, M3, P5, m6, M6, P8)"
+          - "不協和音(m2, M2, P4, TT, m7, M7)は禁止"
+      - heading: "旋律の動き"
+        items:
+          - "オクターブを超える跳躍は禁止"
+          - "旋律的三全音は禁止"
+          - "4度より大きな跳躍の後は反対方向の順次進行で解決"
+      - heading: "声部間"
+        items:
+          - "平行5度・平行8度は禁止"
+          - "隠伏5度・隠伏8度は警告"
+          - "声部交叉は避ける"
+    references:
+      - "Fux『Gradus ad Parnassum』(1725) Liber Secundus, Caput Primum"
+      - "Salzer & Schachter『Counterpoint in Composition』第1章"
+
+  # ─────────────────────────────────────────────────────────
+  - id: a1_species2
+    title: "A1: Fux Species 2 (2:1)"
+    summary: "定旋律1音に対して対旋律2音。経過音(passing tone)を覚える。"
+    intent: "強拍と弱拍の重みの違いを学び、不協和音を経過音として扱う技術を身につける。"
+    species_compat: 2
+    rules:
+      - species_start_end_perfect
+      - species2_dissonance
+      - species_melodic_leap
+      - species_climax_range
+      - parallel_motion
+      - hidden_motion
+      - voice_crossing
+    expected_parts: ["cantus_firmus", "counterpoint"]
+    cantus_firmus_presets:
+      - c_major_short
+      - fux_d_dorian
+    teacher_persona: |
+      Species 2 を教える対位法教師。強拍は協和、弱拍は経過音なら不協和も可、という
+      原則を優先的に確認してください。
+    rule_card:
+      - heading: "リズム"
+        items:
+          - "1つの cantus 音に対して対旋律は2分音符 × 2"
+      - heading: "強拍(downbeat)"
+        items:
+          - "強拍は必ず協和音"
+      - heading: "弱拍(upbeat)"
+        items:
+          - "弱拍が不協和なら経過音(stepwise approach + same-direction continuation)のみ可"
+      - heading: "1種から引き継ぐ"
+        items:
+          - "開始・終止は完全協和音"
+          - "平行5度/8度・声部交叉は禁止"
+
+  # ─────────────────────────────────────────────────────────
+  - id: a1_species3
+    title: "A1: Fux Species 3 (4:1)"
+    summary: "定旋律1音に対して対旋律4音。経過音と刺繍音(neighbor)。"
+    intent: "弱拍の自由度を更に広げ、刺繍音による旋律の装飾を学ぶ。"
+    species_compat: 3
+    rules:
+      - species_start_end_perfect
+      - species3_dissonance
+      - species_melodic_leap
+      - species_climax_range
+      - parallel_motion
+      - hidden_motion
+      - voice_crossing
+    expected_parts: ["cantus_firmus", "counterpoint"]
+    cantus_firmus_presets:
+      - c_major_short
+      - fux_d_dorian
+    rule_card:
+      - heading: "拍位置の重み"
+        items:
+          - "1拍目は協和必須、3拍目は協和が原則"
+          - "2・4拍目は経過音 or 刺繍音なら不協和可"
+
+  # ─────────────────────────────────────────────────────────
+  - id: a1_species4
+    title: "A1: Fux Species 4 (掛留 suspension)"
+    summary: "タイで結ぶことで強拍に不協和を作り、下行2度で解決する。"
+    intent: "対位法の華である「掛留」の3段階(準備→衝突→解決)を体感する。"
+    species_compat: 4
+    rules:
+      - species_start_end_perfect
+      - species4_suspension
+      - species_melodic_leap
+      - species_climax_range
+      - parallel_motion
+      - hidden_motion
+      - voice_crossing
+    expected_parts: ["cantus_firmus", "counterpoint"]
+    cantus_firmus_presets:
+      - c_major_short
+      - fux_d_dorian
+    rule_card:
+      - heading: "掛留の3段階"
+        items:
+          - "準備: タイの始点では協和音"
+          - "衝突: タイの後半は不協和"
+          - "解決: 下行2度で協和音へ"
+      - heading: "代表例"
+        items:
+          - "7-6 / 4-3 / 9-8 サスペンション"
+
+  # ─────────────────────────────────────────────────────────
+  - id: a1_species5
+    title: "A1: Fux Species 5 (florid)"
+    summary: "1〜4種を組み合わせた華麗対位法。基礎ルールはすべて生きている。"
+    intent: "リズムの自由度を獲得しつつ、これまでの全ルールを統合的に運用する。"
+    species_compat: 5
+    rules:
+      - species_start_end_perfect
+      - species5_florid
+      - species4_suspension
+      - species3_dissonance
+      - species_melodic_leap
+      - species_climax_range
+      - parallel_motion
+      - hidden_motion
+      - voice_crossing
+    expected_parts: ["cantus_firmus", "counterpoint"]
+    cantus_firmus_presets:
+      - c_major_short
+      - fux_d_dorian
+      - fux_g_mixolydian
+    rule_card:
+      - heading: "リズムの自由"
+        items:
+          - "全音符・2分・4分・タイを混在させる"
+          - "4音以上同じ音価の連続は避ける"
+          - "持続音や掛留を1つ以上含めて変化を作る"
+
+  # ─────────────────────────────────────────────────────────
+  - id: a2_free_counterpoint
+    title: "A2: 自由対位法 (Free Counterpoint)"
+    summary: "Fux 5種の枠を外し、より自由な対位法書法へ。Species ルールは緩和(info 化)。"
+    intent: |
+      Fux Species 5 の延長線上にある、もっと音楽的に自由な対位法。
+      強拍/弱拍の縛りや「跳躍は順次進行で解決」といった硬いルールを「警告」に下げて、
+      Bach のインベンションへの橋渡しとする。
+    species_compat: 5
+    rules:
+      - species5_florid
+      - species4_suspension
+      - species3_dissonance
+      - species_melodic_leap
+      - species_climax_range
+      - parallel_motion
+      - hidden_motion
+      - voice_crossing
+    rule_severity_overrides:
+      species3_dissonance: info
+      species_melodic_leap: info
+      species_climax_range: info
+      species4_unprepared_suspension: warning
+      species4_unresolved_suspension: warning
+    expected_parts: ["cantus_firmus", "counterpoint"]
+    cantus_firmus_presets:
+      - fux_d_dorian
+      - fux_g_mixolydian
+      - fux_a_aeolian
+    teacher_persona: |
+      あなたはバロック対位法の入り口を教える教師です。Fux の厳しい規則を絶対視せず、
+      「歌として自然に流れているか」「リズムとフレーズに呼吸があるか」を優先してください。
+      平行5度/8度や掛留の不適切な解決など、本当に音楽的に問題のある箇所だけ強く指摘してください。
+    rule_card:
+      - heading: "緩和されるルール"
+        items:
+          - "強拍/弱拍の不協和は厳密にチェックせず、文脈次第で許容"
+          - "跳躍の後の順次進行解決はベストプラクティスだが必須ではない"
+          - "クライマックス1度限定はガイドライン扱い"
+      - heading: "残るルール(厳密)"
+        items:
+          - "平行5度・平行8度は依然として禁止"
+          - "掛留の準備・解決は守る"
+          - "声部交叉は不自然なら警告"
+
+  # ─────────────────────────────────────────────────────────
+  - id: a3_two_part_invention
+    title: "A3: 2声インベンション (模倣対位法)"
+    summary: "Bach の2声インベンション様式。主題を一方の声部が提示し、他方が模倣する。"
+    intent: |
+      バッハの2声インベンションでは、片方の声部が主題(subject)を提示し、もう片方が
+      数小節後にそれを模倣する。この「模倣」が音楽の核心。模倣のずれ、転回、反行など
+      も含めて旋律的な対話を作る。
+    rules:
+      - imitation_check
+      - parallel_motion
+      - hidden_motion
+      - voice_crossing
+      - species_melodic_leap
+    expected_parts: ["upper", "lower"]
+    teacher_persona: |
+      あなたはバッハの2声インベンションを教える教師です。生徒の書いた2声書法を見て、
+      「主題が明確に提示されているか」「他方の声部が適切なタイミングで模倣しているか」
+      「模倣の中で旋律としての独立性が保たれているか」を評価してください。
+      Fux の厳格な禁則よりも、「主題の歌わせ方」「対話の自然さ」を優先します。
+    rule_card:
+      - heading: "模倣 (imitation)"
+        items:
+          - "片方の声部が主題(subject)を提示する"
+          - "他方の声部が同じ音程関係でその主題を模倣する(完全1度・5度・8度など)"
+          - "模倣のタイミングは1〜数小節遅れる"
+      - heading: "対主題 (countersubject)"
+        items:
+          - "主題が模倣されている間、最初の声部は対主題を続けて歌う"
+          - "対主題は主題と一緒に再登場することもある"
+      - heading: "声部の独立性"
+        items:
+          - '両声部が同じリズムで動かないように(ホモフォニー化を避ける)'
+          - "片方が休符 or 持続音のとき、もう一方が動く"
+      - heading: "守るべき基礎"
+        items:
+          - "平行5度・平行8度は依然として禁止"
+          - "声部交叉は意図的な場合のみ"
+    references:
+      - "Bach: 2声インベンション BWV 772-786(15曲)"
+      - "Walter Piston『Counterpoint』第10章"
+
+  # ─────────────────────────────────────────────────────────
+  - id: a4_three_part_sinfonia
+    title: "A4: 3声シンフォニア"
+    summary: "Bach の3声シンフォニア様式。3声同時の管理、主題の3声分配。"
+    intent: |
+      3声書法は2声よりも難易度が一段上がる。各声部が独立して歌いつつ、
+      ボイシングと声部進行の整合性を取る必要がある。
+    rules:
+      - three_voice_voicing
+      - three_voice_independence
+      - parallel_motion
+      - hidden_motion
+      - voice_crossing
+      - imitation_check
+    expected_parts: ["soprano", "alto", "bass"]
+    teacher_persona: |
+      あなたは Bach の3声シンフォニアを教える対位法教師です。
+      生徒の3声体について、各声部の独立性、ボイシングの整理、主題の3声への
+      分配を評価してください。
+    rule_card:
+      - heading: "3声のバランス"
+        items:
+          - "3声がそれぞれ独立した旋律として歌う"
+          - "全声部が同じリズムで動く瞬間は短く保つ"
+      - heading: "ボイシング"
+        items:
+          - "ソプラノ-アルト間、アルト-バス間がそれぞれ12度以内"
+          - "声部間の交叉は避ける(主題の受け渡し時を除く)"
+      - heading: "主題の分配"
+        items:
+          - "主題は全声部に少なくとも1回は登場するのが理想"
+    references:
+      - "Bach: 3声シンフォニア BWV 787-801(15曲)"
+
+  # ─────────────────────────────────────────────────────────
+  - id: a5_chorale
+    title: "A5: 4声コラール和声 (Bach 様式)"
+    summary: "Bach のコラール4声体。ソプラノ・アルト・テノール・バスの和声書法。"
+    intent: |
+      Bach のコラール(賛美歌の4声体)は、和声と対位法が融合した古典的書法の極致。
+      各声部の旋律性、ボイスリーディングの滑らかさ、和声機能の明快さを同時に追求する。
+    rules:
+      - four_voice_voicing
+      - four_voice_doubling
+      - parallel_motion
+      - hidden_motion
+      - voice_crossing
+      - species_melodic_leap
+    expected_parts: ["soprano", "alto", "tenor", "bass"]
+    teacher_persona: |
+      あなたはバッハのコラール和声を教える教師です。4声体について、
+      各声部の音域、ボイシングの開離/密集、ボイスリーディングの滑らかさ、
+      重複(doubling)の選び方を評価してください。
+    rule_card:
+      - heading: "各声部の音域"
+        items:
+          - "ソプラノ: C4 〜 G5(Studio One: C3〜G4)"
+          - "アルト: G3 〜 D5"
+          - "テノール: C3 〜 G4"
+          - "バス: F2 〜 C4"
+      - heading: "ボイシング"
+        items:
+          - "ソプラノ-アルト・アルト-テノール間はオクターブ以内"
+          - "テノール-バスは12度まで開いてよい"
+          - "声部交叉は避ける(原則禁止)"
+      - heading: "重複 (doubling)"
+        items:
+          - "三和音はルートを倍にするのが基本"
+          - "リーディングトーン(導音)は倍にしない"
+      - heading: "ボイスリーディング"
+        items:
+          - "各内声は最も近い音に動く(共通音はそのまま保持)"
+          - "跳躍は外声(ソプラノ・バス)に集中させる"
+    references:
+      - "Bach: 371 Vierstimmige Choralgesänge"
+      - "Walter Piston『Harmony』(コラール和声の章)"
