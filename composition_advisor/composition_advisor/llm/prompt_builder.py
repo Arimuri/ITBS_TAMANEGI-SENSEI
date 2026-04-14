@@ -73,17 +73,26 @@ def build_user_prompt(result: AnalysisResult) -> str:
     lines.append(f"- パート: {', '.join(md.part_names)}")
     lines.append("")
 
+    # ---- プロンプトサイズ上限 ----
+    # 大きい MIDI だと Slice 数が数千に膨れ上がり、Claude の入力上限を
+    # 超えてしまう。Slice の全件ダンプは避け、Issue 周辺だけを含める。
+    # Issue がゼロの場合も先頭の数十 Slice だけサンプルする。
+    MAX_SLICES_NO_ISSUES = 40
+    MAX_ISSUES_IN_PROMPT = 30
+
     if not result.issues:
         lines.append("ルールベースでは問題が検出されませんでした。")
-        lines.append("以下のスライス情報を見て、曲全体の和声的な印象を簡潔に書いてください。")
+        lines.append("以下のスライス情報(先頭抜粋)を見て、曲全体の和声的な印象を簡潔に書いてください。")
         lines.append("")
-        lines.append("# Slices(全件)")
-        for sl in result.slices:
+        sample = result.slices[:MAX_SLICES_NO_ISSUES]
+        lines.append(f"# Slices(先頭 {len(sample)} 件 / 全 {len(result.slices)} 件)")
+        for sl in sample:
             lines.append(_format_slice(sl))
         return "\n".join(lines)
 
-    lines.append(f"# 検出された問題 ({len(result.issues)} 件)")
-    for idx, iss in enumerate(result.issues, 1):
+    issues_to_show = result.issues[:MAX_ISSUES_IN_PROMPT]
+    lines.append(f"# 検出された問題 ({len(result.issues)} 件中 {len(issues_to_show)} 件を表示)")
+    for idx, iss in enumerate(issues_to_show, 1):
         lines.append("")
         lines.append(f"## 問題 {idx}: {iss.rule_id} [{iss.severity}]")
         lines.append(f"- 位置: bar{iss.bar} beat{iss.beat_in_bar:.2f}")

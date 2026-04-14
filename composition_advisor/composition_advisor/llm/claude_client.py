@@ -32,6 +32,14 @@ def critique(
         )
 
     user_prompt = build_user_prompt(result)
+    # Safety cap: roughly 4 chars ≈ 1 token. Aim for < 200k tokens input.
+    MAX_PROMPT_CHARS = 600_000
+    if len(user_prompt) > MAX_PROMPT_CHARS:
+        logger.warning(
+            "Prompt too long (%d chars), truncating to %d",
+            len(user_prompt), MAX_PROMPT_CHARS,
+        )
+        user_prompt = user_prompt[:MAX_PROMPT_CHARS] + "\n\n(… 以降省略、プロンプトが長すぎたため切り詰めました)"
     logger.info("Calling Claude (%s), prompt length=%d chars", model, len(user_prompt))
 
     client = anthropic.Anthropic()
