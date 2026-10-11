@@ -1,0 +1,10 @@
+--- a/composition_advisor_server/app.py
++++ b/composition_advisor_server/app.py
+@@ -1055,6 +1055,7 @@
+ </head>
+ <body>
+ <h1>composition-advisor</h1>
++<p><a href="/counterpoint/">対位法トレーナーを開く — ピアノロールで入力・再生・採点</a></p>
+ 
+ <div class="tabs">
+   <button data-tab="general" class="active">一般分析</button>

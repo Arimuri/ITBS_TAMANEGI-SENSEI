@@ -1,0 +1,29 @@
+[Unit]
+Description=Tamanegi counterpoint trainer
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/projects/tamanegi-counterpoint/current/composition_advisor
+EnvironmentFile=/etc/composition-advisor-server/env
+Environment=COUNTERPOINT_WEB_DIST=/home/ubuntu/projects/tamanegi-counterpoint/current/web/dist
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=COUNTERPOINT_HISTORY_DB=/var/lib/tamanegi-counterpoint/history.sqlite3
+StateDirectory=tamanegi-counterpoint
+StateDirectoryMode=0700
+UMask=0077
+ExecStart=/home/ubuntu/projects/tamanegi-counterpoint/current/composition_advisor/.venv/bin/uvicorn composition_advisor.api:create_app --factory --host 127.0.0.1 --port 8766 --root-path /counterpoint
+Restart=on-failure
+RestartSec=5
+MemoryHigh=192M
+MemoryMax=256M
+CPUQuota=50%
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=read-only
+
+[Install]
+WantedBy=multi-user.target

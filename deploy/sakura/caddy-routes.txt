@@ -1,0 +1,15 @@
+# Place inside each existing site block. Keep the existing legacy proxy's
+# transport timeouts and encode settings in the fallback handle.
+redir /counterpoint /counterpoint/ 308
+handle_path /counterpoint/* {
+    reverse_proxy 127.0.0.1:8766
+}
+handle {
+    reverse_proxy 127.0.0.1:8765 {
+        transport http {
+            read_timeout 300s
+            write_timeout 300s
+        }
+    }
+}
+encode gzip
