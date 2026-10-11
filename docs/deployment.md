@@ -18,7 +18,7 @@
 2. `cd web && VITE_BASE_PATH=/counterpoint/ npm run build` で公開用の画面をビルド。
 3. `composition_advisor/` のPythonソース・`pyproject.toml`・`uv.lock`、`web/dist/`、`deploy/sakura/` を、新しいリリースディレクトリへコピー。`.git`・仮想環境・個人資料・秘密情報は含めない。
 4. VPS上のリリース内 `composition_advisor/` で `/home/ubuntu/.local/bin/uv sync --frozen --extra web --no-dev` を実行。
-5. `current` を新しいリリースへ向け、[systemd設定](../deploy/sakura/tamanegi-counterpoint.service)でトレーナーだけを再起動。
+5. `current` を新しいリリースへ向け、[systemd設定](../deploy/sakura/tamanegi-counterpoint.service)でトレーナーだけを再起動。リポジトリのユニットファイルが VPS の `/etc/systemd/system/tamanegi-counterpoint.service` と異なる場合は、元ファイルをリリース内 `backups/` に保存してから置き換え、`systemctl daemon-reload` してから再起動する。
 6. Caddyの既存ホスト内に [パス振り分け](../deploy/sakura/caddy-routes.txt) を追加。`/counterpoint/` を除く従来のURLは8765へ転送し、300秒のタイムアウトも維持する。`caddy validate` 成功後にreload。
 7. 初回のみ、従来サーバーに [入口リンクのパッチ](../deploy/sakura/legacy-trainer-link.patch) を適用して再起動。事前に元ファイルをバックアップし、`patch --dry-run` とPython構文チェックを行う。
 
@@ -73,3 +73,13 @@ PY
 - 本番認証情報を取得する操作は自動審査で拒否されたため未実行。資格情報を抽出せず、Chromeが保持していたログインで公開版を検証しました。
 - 未検証: Safari/Firefox、実機スピーカーでの聴感、今回変更していない従来のClaude APIによる添削。新トレーナーの第2種以降と端末間履歴同期は未実装。
 - ローカル `web/dist` は通常の `/` 用へ再ビルド済み。未コミットのソースは保持し、Gitのcommit/pushは行っていません。
+
+## 2026-10-11 公開記録（第2〜5種・履歴同期）
+
+- 配置リリース: `/home/ubuntu/projects/tamanegi-counterpoint/releases/20261011T1225`。前リリースは `20261010T0115`（戻す場合は `current` をこちらへ向けて再起動）。
+- 配置アーカイブSHA-256: `255107a75b79378a6a6105a66f7c418e19cc8a252cebbd2a3a9bb7adf77082a6`。内容は `composition_advisor/`（Pythonソース・pyproject・uv.lock）、`web/dist/`（`VITE_BASE_PATH=/counterpoint/`）、`deploy/sakura/`。
+- systemd ユニットを更新: `COUNTERPOINT_HISTORY_DB`、`StateDirectory=tamanegi-counterpoint`、`UMask=0077` を追加。置換前のユニットは同リリースの `backups/tamanegi-counterpoint.service.before`。Caddy と従来アプリは変更なし。
+- 確認: ローカル `/api/health` 200、`systemctl is-active` active、`/api/history/status` が `enabled: true`、`/api/exercises` に第1〜5種の7課題、画面が新しいアセット（`index-CF_R1DlT.js`）を配信。公開 URL とsslip.io別名で `/counterpoint/api/health` 200、画面は未認証401、従来の `/healthz` 200。履歴DB `/var/lib/tamanegi-counterpoint/history.sqlite3` が 0700 ディレクトリ・0600 で作成された。
+- 認証付きの確認は VPS 上で `/etc/composition-advisor-server/env` を読み込んだシェルから実行し、資格情報は出力・転送していない。
+- 配置元のコミット: `49b62e9`（docs）までの `main`。ローカル `web/dist` は `/` 用へ再ビルド済み。
+- 未検証: ブラウザでログインしての第2〜5種の操作、別端末からの履歴同期（ローカルの e2e では確認済み）。

@@ -1,6 +1,6 @@
 # 引き継ぎメモ — 対位法トレーナー
 
-最終更新: 2026-10-10（Claude Code が Codex から引き継いだ時点の記録。作業の進捗に合わせて更新する）
+最終更新: 2026-10-11 12:40 JST（Claude Code が Codex から引き継ぎ、第2〜5種・履歴同期を VPS へ配置した時点。作業の進捗に合わせて更新する）
 
 ## Codex へ（次に Codex で再開する場合）
 
@@ -29,18 +29,18 @@
 
 詳細な配置・戻し方は [docs/deployment.md](docs/deployment.md)。
 
-**本番に載っているのは第1種のみのリリース `releases/20261010T0115`。** 第2〜5種・履歴同期・課題冒頭の説明はまだローカルにしかない。
+**本番は 2026-10-11 12:25 JST に `releases/20261011T1225` へ切替済み**（第2〜5種・履歴同期・課題冒頭の説明を含む）。前リリース `20261010T0115`（第1種のみ）は残してあり、戻す場合は `current` をそちらへ向けて再起動する。記録は [docs/deployment.md](docs/deployment.md)。
 
 ## git の状態
 
-トレーナー関連は **一度もコミットされていない**。`main` の HEAD は `e6f3754`（4月の MIDI 添削の変更）。
+2026-10-11 に Claude Code がコミットして push した。`main` = `origin/main`。
 
-未コミット:
+- `a5b90b5` feat(counterpoint): 採点エンジン・履歴DB・FastAPI 層
+- `de22da4` feat(web): 画面
+- `49b62e9` docs: 手順・採点方針・配置資料・引き継ぎメモ
+- その後に公開記録の docs コミット
 
-- 変更: `.gitignore` `README.md` `composition_advisor/README.md` `composition_advisor/pyproject.toml` `composition_advisor/uv.lock`
-- 新規: `composition_advisor/composition_advisor/{api.py,history.py,counterpoint/}`、`composition_advisor/tests/test_{counterpoint,counterpoint_api,counterpoint_species,history}.py`、`web/`、`docs/`、`scripts/`、`deploy/`、この `HANDOFF.md`
-
-Dropbox 上にあるので消えはしないが、コミットして push するまで履歴が残らない。
+それ以前の HEAD `e6f3754` は 4 月の MIDI 添削の変更で、トレーナー関連は一度もコミットされていなかった。
 
 ## Codex 停止時点（11:13 JST）に残っていた問題と、引き継ぎ後の対応
 
@@ -57,9 +57,10 @@ Claude Code で対応済み（すべてローカル、未コミット）:
 
 ## 残作業（優先順）
 
-1. コミット（第1種 MVP / 第2〜5種 / 履歴同期 / デプロイ資料 のように分けるとよい）。
-2. VPS へ配置: `cd web && VITE_BASE_PATH=/counterpoint/ npm run build` → 新リリースディレクトリへコピー → `uv sync --frozen --extra web --no-dev` → `current` を切替 → `systemctl restart tamanegi-counterpoint`。Caddy と従来アプリには触らない。手順は [docs/deployment.md](docs/deployment.md)。配置後は `web/dist` を `/` 用に再ビルドして戻す。
-3. 配置後の確認: `/counterpoint/api/health` が 200、ログインして第2〜5種が選べる、別端末で履歴が同期される。`docs/deployment.md` に公開記録を追記。
+1. ユーザーがブラウザでログインして確認: 第2〜5種が選べる、課題冒頭の説明が出る、提出・採点・履歴が動く、別端末（スマホなど）で履歴が同期される。問題があれば `current` を `20261010T0115` へ戻せる。
+2. `trainer.spec.ts` を履歴ゼロ前提から外す（同期サーバーでも全件回せるようにする）。任意。
+3. VPS のディスクが 85% 使用（15G 空き）。リリースは 1 つ約 260MB なので、古いリリースを数世代で消す運用を決める。
+4. 仕様書の「MVP 後の優先順位」（`~/Downloads/CODEX_HANDOFF_TAMANEGI_COUNTERPOINT.md` §16）が次の候補。五線譜からの直接入力、試験/コーチモード、MIDI 入出力など。
 
 ## ローカルで動かす
 
