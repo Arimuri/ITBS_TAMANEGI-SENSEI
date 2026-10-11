@@ -4,6 +4,21 @@
 
 Studio One で作曲した複数 MIDI ファイル(melody.mid, chord.mid, bass.mid …)を想定しています。
 
+## Webで第1〜5種を練習する
+
+対位法トレーナーを同じPythonパッケージに追加しています。課題ごとの短いルール説明、ピアノロール入力、タイを含む五線譜、2声再生、決定的な採点、自動保存・提出履歴に対応します。公開版では同じログインの端末で提出履歴を同期します。第5種は固定された混合リズム課題です。既存CLIの作曲チェック・種対位法チェックとは別のバージョン付きプロファイルです。
+
+```bash
+uv sync --extra web --frozen
+cd ../web
+npm ci
+npm run build
+cd ../composition_advisor
+uv run --extra web --frozen counterpoint
+```
+
+ブラウザで http://127.0.0.1:8000 を開きます。APIキー不要。手順・制約は [トレーナーガイド](../docs/counterpoint.md) と [採点方針・出典](../docs/counterpoint-theory.md) を参照してください。
+
 ---
 
 ## できること
@@ -38,34 +53,34 @@ uv sync
 ### テキスト出力(コード/度数 + ルール検出結果)
 
 ```bash
-uv run analyze melody.mid chord.mid bass.mid --key C
+uv run analyze analyze melody.mid chord.mid bass.mid --key C
 ```
 
 ### JSON 出力(中間表現すべて)
 
 ```bash
-uv run analyze *.mid --key C --output json > result.json
+uv run analyze analyze *.mid --key C --output json > result.json
 ```
 
 ### LLM プロンプトだけ確認(API キー不要)
 
 ```bash
-uv run analyze *.mid --key C --output prompt
+uv run analyze analyze *.mid --key C --output prompt
 ```
 
 ### Claude に投げて自然言語の添削を生成
 
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
-uv run analyze *.mid --key C --llm
+uv run analyze analyze *.mid --key C --llm
 # モデル指定:
-uv run analyze *.mid --key C --llm --model claude-sonnet-4-6
+uv run analyze analyze *.mid --key C --llm --model claude-sonnet-4-6
 ```
 
 ### ジャンル設定でルールをカスタマイズ
 
 ```bash
-uv run analyze *.mid --key C --config examples/jazz.yaml
+uv run analyze analyze *.mid --key C --config examples/jazz.yaml
 ```
 
 `examples/jazz.yaml` では `parallel_motion` を無効化し、`voice_crossing` `chord_tone_check` を `info` 重大度に下げています。
@@ -73,20 +88,20 @@ uv run analyze *.mid --key C --config examples/jazz.yaml
 ### 特定の小節範囲だけ分析
 
 ```bash
-uv run analyze *.mid --key C --bars 4-8     # bar 4-8 のみ
-uv run analyze *.mid --key C --bars 4       # bar 4 だけ
-uv run analyze *.mid --key C --bars 4-      # bar 4 以降
-uv run analyze *.mid --key C --bars -8      # 曲頭から bar 8 まで
+uv run analyze analyze *.mid --key C --bars 4-8     # bar 4-8 のみ
+uv run analyze analyze *.mid --key C --bars 4       # bar 4 だけ
+uv run analyze analyze *.mid --key C --bars 4-      # bar 4 以降
+uv run analyze analyze *.mid --key C --bars -8      # 曲頭から bar 8 まで
 ```
 
 ### MIDI 修正提案を書き出す
 
 ```bash
 # ルールベースの修正だけ(API不要、決定的)
-uv run analyze *.mid --key C --fix --fix-dir fix_output
+uv run analyze analyze *.mid --key C --fix --fix-dir fix_output
 
 # LLM (Claude) も併用して semitone_clash / chord_tone_check を修正させる
-uv run analyze *.mid --key C --fix --fix-llm --fix-dir fix_output
+uv run analyze analyze *.mid --key C --fix --fix-llm --fix-dir fix_output
 ```
 
 `fix_output/` に各パートの `_fixed.mid` と `fixes.txt`(diffレポート)が出力されます。
