@@ -1,0 +1,15 @@
+Third-party notices for the locally bundled counterpoint trainer
+
+VexFlow 5.0.0 — MIT — https://github.com/vexflow/vexflow
+Bravura — SIL Open Font License 1.1 — https://github.com/vexflow/vexflow-fonts/tree/main/bravura
+Academico (regular and bold) — SIL Open Font License 1.1 — https://github.com/vexflow/vexflow-fonts/tree/main/academico
+React, React DOM, Scheduler — MIT — https://github.com/facebook/react
+Lucide React — ISC — https://github.com/lucide-icons/lucide
+
+The corresponding license notices are included in this directory and copied
+unchanged into the compiled web application. Font data are embedded in the
+VexFlow bundle; the trainer does not download fonts from an external CDN.
+
+For backend dependencies and music-education references, see
+docs/counterpoint-theory.md in the repository. The tutorial text and exercises
+in the application are original; no third-party teaching examples are copied.

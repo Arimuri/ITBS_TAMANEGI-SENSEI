@@ -1,0 +1,31 @@
+import { afterEach, expect, it, vi } from 'vitest';
+import { Player } from './audio';
+afterEach(() => vi.unstubAllGlobals());
+it('closes an unmounted audio context and cancels a pending resume before scheduling notes', async () => {
+  let resume!: () => void;
+  const resumed = new Promise<void>(resolve => { resume = resolve; });
+  const context = { state: 'suspended', resume: vi.fn(() => resumed), close: vi.fn(async () => { context.state = 'closed'; }), createGain: vi.fn() };
+  vi.stubGlobal('AudioContext', vi.fn(function () { return context; }));
+  vi.stubGlobal('cancelAnimationFrame', vi.fn());
+  const player = new Player();
+  const onTick = vi.fn();
+  const starting = player.play([], 480, 80, 1920, { cf: false, cp: false }, onTick);
+  await player.dispose();
+  resume();
+  await starting;
+  await player.dispose();
+  expect(context.close).toHaveBeenCalledTimes(1);
+  expect(context.createGain).not.toHaveBeenCalled();
+  expect(onTick).not.toHaveBeenCalled();
+});
+it('ignores a resume rejection caused by disposal', async () => {
+  let reject!: (error: Error) => void;
+  const resumed = new Promise<void>((_, rejectPromise) => { reject = rejectPromise; });
+  const context = { state: 'suspended', resume: vi.fn(() => resumed), close: vi.fn(async () => { context.state = 'closed'; reject(new Error('Context closed')); }) };
+  vi.stubGlobal('AudioContext', vi.fn(function () { return context; }));
+  vi.stubGlobal('cancelAnimationFrame', vi.fn());
+  const player = new Player();
+  const starting = player.play([], 480, 80, 1920, { cf: false, cp: false }, vi.fn());
+  await player.dispose();
+  await expect(starting).resolves.toBeUndefined();
+});

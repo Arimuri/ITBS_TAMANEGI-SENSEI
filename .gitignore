@@ -22,3 +22,9 @@ composition_advisor_handoff.md
 .idea/
 .vscode/
 
+# Web trainer
+node_modules/
+playwright-report/
+test-results/
+.venv-counterpoint/
+
